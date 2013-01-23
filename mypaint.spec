@@ -1,8 +1,8 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           mypaint
-Version:        1.0.0
-Release:        1%{?dist}.R
+Version:        1.1.0
+Release:        1%{?dist}
 Summary:        A fast and easy graphics application for digital painters
 
 Group:          Applications/Multimedia
@@ -91,6 +91,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_libdir}/mypaint/_mypaintlib.so
 
 %changelog
+* Wed Jan 23 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 1.1.0-1.R
+- update to 1.1.0
+
 * Tue Nov 29 2011 Arkady L. Shane <ashejn@russianfedora.ru> - 1.0.0-1.R
 - update to 1.0.0
 
