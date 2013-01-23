@@ -13,8 +13,8 @@ Source0:        http://download.gna.org/mypaint/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  python-devel, gtk2-devel, pygtk2-devel
-BuildRequires:  numpy, scons, swig, protobuf-devel
-BuildRequires:  desktop-file-utils, gettext, intltool
+BuildRequires:  numpy, scons, swig, protobuf-devel, lcms2-devel
+BuildRequires:  desktop-file-utils, gettext, intltool, json-c-devel
 Requires:       gtk2, numpy, pygtk2, python, protobuf-python
 
 %description
@@ -23,13 +23,26 @@ you focus on the art instead of the program. You work on your canvas with
 minimum distractions, bringing up the interface only when you need it.
 
 
+%package devel
+Summary:        Static library and header files for the %{name}
+Group:          Development/Libraries
+Requires:       %{name} = %{version}
+
+
+%description devel
+The %{name}-devel package contains API documentation for
+developing %{name}.
+
+
 %prep
 %setup -q
 # the Options class is deprecated; use the Variables class instead
 sed -i 's|PathOption|PathVariable|g' SConstruct
 sed -i 's|Options|Variables|g' SConstruct
 # for 64 bit
-sed -i 's|lib/mypaint|%{_lib}/mypaint|g' SConstruct mypaint.py
+sed -i 's|lib/mypaint|%{_lib}/mypaint|g' SConstruct SConscript mypaint.py
+sed -i 's|/lib/|/%{_lib}/|g' brushlib/SConscript
+sed -i "s|'lib'|'%{_lib}'|g" brushlib/SConscript
 # fix menu icon
 sed -i 's|mypaint_48|mypaint|g' desktop/%{name}.desktop
 
@@ -53,9 +66,10 @@ desktop-file-install --vendor="fedora" \
 
 find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/mypaint/_mypaintlib.so
-
 %find_lang %{name}
+%find_lang libmypaint
+
+sed s,"%{buildroot}",,g -i %{buildroot}%{_libdir}/pkgconfig/libmypaint.pc
 
 
 %clean
@@ -89,6 +103,13 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_datadir}/applications/fedora-%{name}.desktop
 %dir %{_libdir}/mypaint/
 %{_libdir}/mypaint/_mypaintlib.so
+
+
+%files devel -f libmypaint.lang
+%defattr(-,root,root,-)
+%{_libdir}/pkgconfig/libmypaint.pc
+%{_libdir}/*.a
+%{_includedir}/*
 
 %changelog
 * Wed Jan 23 2013 Arkady L. Shane <ashejn@russianfedora.ru> - 1.1.0-1.R
